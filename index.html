@@ -72,11 +72,36 @@
             margin-bottom: 1rem;
         }
 
-        header p {
-            max-width: 600px;
-            margin: 0 auto;
-            color: #666;
-            font-weight: 300;
+        /* Admin Add Product Form */
+        #adminPanel {
+            display: none; /* Hidden by default */
+            background: #fff;
+            margin: 2rem 5%;
+            padding: 2rem;
+            border: 1px solid var(--sage);
+            border-radius: 4px;
+        }
+
+        .admin-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .admin-form-grid input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .add-confirm-btn {
+            background: var(--sage);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 600;
         }
 
         /* Product Grid */
@@ -99,9 +124,7 @@
             position: relative;
         }
 
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
+        .product-card:hover { transform: translateY(-5px); }
 
         .img-container {
             width: 100%;
@@ -134,24 +157,18 @@
             font-size: 0.9rem;
         }
 
-        /* Admin Controls */
-        .admin-controls {
-            display: none;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px dashed #ccc;
-        }
-
         .delete-btn {
-            background: #d9534f;
+            background: #e74c3c;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 6px 12px;
+            margin-top: 1rem;
             cursor: pointer;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
+            display: block;
         }
 
-        /* Modal styling */
+        /* Login Modal */
         #loginModal {
             display: none;
             position: fixed;
@@ -194,8 +211,9 @@
             margin-top: 4rem;
         }
 
-        @media (max-width: 600px) {
-            header h1 { font-size: 2rem; }
+        @media (max-width: 768px) {
+            .admin-form-grid { grid-template-columns: 1fr; }
+            header h1 { font-size: 2.2rem; }
         }
     </style>
 </head>
@@ -203,13 +221,28 @@
 
 <nav>
     <div class="logo">THOKOZA</div>
-    <button class="admin-btn" onclick="openLogin()">Manage Products</button>
+    <button class="admin-btn" id="loginToggleBtn" onclick="openLogin()">Staff Login</button>
 </nav>
 
 <header>
     <h1>Handwoven Elegance</h1>
-    <p>Discover our curated collection of authentic African weaving, from architectural lampshades to bespoke furniture.</p>
+    <p>Authentic African craftsmanship, delivered to your doorstep.</p>
 </header>
+
+<div id="adminPanel">
+    <h3 style="margin-bottom: 1rem; font-family: 'Playfair Display';">Add New Product</h3>
+    <div class="admin-form-grid">
+        <div>
+            <label style="font-size: 0.8rem;">Product Name</label><br>
+            <input type="text" id="newProductName" placeholder="e.g. Woven Mirror">
+        </div>
+        <div>
+            <label style="font-size: 0.8rem;">Image Filename (must be in root folder)</label><br>
+            <input type="text" id="newProductImg" placeholder="e.g. mirror-shot.jpg">
+        </div>
+        <button class="add-confirm-btn" onclick="addNewProduct()">Add Product</button>
+    </div>
+</div>
 
 <div class="container">
     <div class="product-grid" id="productGrid">
@@ -219,8 +252,7 @@
 <div id="loginModal">
     <div class="modal-content">
         <h3>Staff Login</h3>
-        <p style="font-size: 0.8rem; color: #666;">Enter your registered phone number</p>
-        <input type="text" id="phoneInput" placeholder="e.g. +27704145360">
+        <input type="text" id="phoneInput" placeholder="Enter phone number">
         <button onclick="checkLogin()">Login</button>
         <button onclick="closeLogin()" style="background:none; color:#666; margin-top:10px;">Cancel</button>
     </div>
@@ -234,7 +266,9 @@
     const WHATSAPP_NUM = "27704145360";
     const AUTH_NUMBERS = ["+27704145360", "0680157156"];
     
-    // Initial Data based on your images
+    let isAdmin = false;
+
+    // Initial Data
     let products = [
         { id: 1, name: "Woven Side Table", img: "IMG-20260331-WA0029.jpg" },
         { id: 2, name: "Nesting Floor Baskets", img: "IMG-20260331-WA0030.jpg" },
@@ -248,60 +282,90 @@
         { id: 10, name: "Spiral Woven Rug", img: "IMG-20260331-WA0038.jpg" }
     ];
 
-    let isAdmin = false;
-
     function renderProducts() {
         const grid = document.getElementById('productGrid');
+        const adminPanel = document.getElementById('adminPanel');
+        const loginBtn = document.getElementById('loginToggleBtn');
+        
         grid.innerHTML = '';
+        
+        // Show/Hide Admin UI
+        adminPanel.style.display = isAdmin ? 'block' : 'none';
+        if(isAdmin) {
+            loginBtn.innerText = "Logout";
+            loginBtn.onclick = logout;
+        }
 
         products.forEach(p => {
             const card = document.createElement('div');
             card.className = 'product-card';
             card.innerHTML = `
                 <div class="img-container">
-                    <img src="${p.img}" alt="${p.name}">
+                    <img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/400x500?text=Image+Not+Found'">
                 </div>
                 <div class="product-info">
                     <h3>${p.name}</h3>
                     <a href="https://wa.me/${WHATSAPP_NUM}?text=I%20am%20interested%20in%20the%20${encodeURIComponent(p.name)}" class="whatsapp-link">Inquire via WhatsApp</a>
-                    <div class="admin-controls" style="display: ${isAdmin ? 'block' : 'none'}">
-                        <button class="delete-btn" onclick="removeProduct(${p.id})">Remove Product</button>
-                    </div>
+                    ${isAdmin ? `<button class="delete-btn" onclick="removeProduct(${p.id})">Remove Product</button>` : ''}
                 </div>
             `;
             grid.appendChild(card);
         });
     }
 
-    // Login Logic
-    function openLogin() {
-        document.getElementById('loginModal').style.display = 'flex';
-    }
-
-    function closeLogin() {
-        document.getElementById('loginModal').style.display = 'none';
-    }
+    function openLogin() { document.getElementById('loginModal').style.display = 'flex'; }
+    function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
 
     function checkLogin() {
         const val = document.getElementById('phoneInput').value.trim();
         if(AUTH_NUMBERS.includes(val)) {
             isAdmin = true;
-            alert("Welcome back! You can now manage products.");
             closeLogin();
             renderProducts();
         } else {
-            alert("Access Denied. Number not recognized.");
+            alert("Unauthorized number.");
         }
     }
 
+    function logout() {
+        isAdmin = false;
+        const loginBtn = document.getElementById('loginToggleBtn');
+        loginBtn.innerText = "Staff Login";
+        loginBtn.onclick = openLogin;
+        renderProducts();
+    }
+
+    // Logic to Add Product
+    function addNewProduct() {
+        const nameInput = document.getElementById('newProductName');
+        const imgInput = document.getElementById('newProductImg');
+
+        if(!nameInput.value || !imgInput.value) {
+            alert("Please fill in both fields.");
+            return;
+        }
+
+        const newProd = {
+            id: Date.now(), // Unique ID based on time
+            name: nameInput.value,
+            img: imgInput.value
+        };
+
+        products.unshift(newProd); // Add to beginning of list
+        renderProducts();
+
+        // Clear inputs
+        nameInput.value = '';
+        imgInput.value = '';
+    }
+
     function removeProduct(id) {
-        if(confirm("Are you sure you want to hide this product from the public?")) {
+        if(confirm("Remove this item?")) {
             products = products.filter(p => p.id !== id);
             renderProducts();
         }
     }
 
-    // Initialize
     renderProducts();
 </script>
 
