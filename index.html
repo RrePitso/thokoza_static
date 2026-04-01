@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thokoza | Artisanal African Weaving</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --clay: #a67c52;
+            --sage: #828a7c;
+            --charcoal: #2d2d2d;
+            --sand: #f4f1ee;
+            --cream: #faf9f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--sand);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background: var(--cream);
+            border-bottom: 1px solid #e0ddd8;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--clay);
+            letter-spacing: 1px;
+        }
+
+        .admin-btn {
+            background: transparent;
+            border: 1px solid var(--sage);
+            color: var(--sage);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .admin-btn:hover {
+            background: var(--sage);
+            color: white;
+        }
+
+        /* Hero Section */
+        header {
+            text-align: center;
+            padding: 4rem 10%;
+            background: var(--cream);
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        header p {
+            max-width: 600px;
+            margin: 0 auto;
+            color: #666;
+            font-weight: 300;
+        }
+
+        /* Product Grid */
+        .container {
+            padding: 3rem 5%;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .product-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 2px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .img-container {
+            width: 100%;
+            height: 350px;
+            background: #eee;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .whatsapp-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--clay);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 2px solid var(--clay);
+            padding-bottom: 2px;
+            font-size: 0.9rem;
+        }
+
+        /* Admin Controls */
+        .admin-controls {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed #ccc;
+        }
+
+        .delete-btn {
+            background: #d9534f;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        /* Modal styling */
+        #loginModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin: 1rem 0;
+            border: 1px solid #ddd;
+        }
+
+        .modal-content button {
+            background: var(--clay);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem;
+            background: var(--charcoal);
+            color: var(--sand);
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">THOKOZA</div>
+    <button class="admin-btn" onclick="openLogin()">Manage Products</button>
+</nav>
+
+<header>
+    <h1>Handwoven Elegance</h1>
+    <p>Discover our curated collection of authentic African weaving, from architectural lampshades to bespoke furniture.</p>
+</header>
+
+<div class="container">
+    <div class="product-grid" id="productGrid">
+        </div>
+</div>
+
+<div id="loginModal">
+    <div class="modal-content">
+        <h3>Staff Login</h3>
+        <p style="font-size: 0.8rem; color: #666;">Enter your registered phone number</p>
+        <input type="text" id="phoneInput" placeholder="e.g. +27704145360">
+        <button onclick="checkLogin()">Login</button>
+        <button onclick="closeLogin()" style="background:none; color:#666; margin-top:10px;">Cancel</button>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2026 Thokoza Artisans. Crafted with pride.</p>
+</footer>
+
+<script>
+    const WHATSAPP_NUM = "27704145360";
+    const AUTH_NUMBERS = ["+27704145360", "0680157156"];
+    
+    // Initial Data based on your images
+    let products = [
+        { id: 1, name: "Woven Side Table", img: "IMG-20260331-WA0029.jpg" },
+        { id: 2, name: "Nesting Floor Baskets", img: "IMG-20260331-WA0030.jpg" },
+        { id: 3, name: "Cylinder Storage Set", img: "IMG-20260331-WA0031.jpg" },
+        { id: 4, name: "Square Organizer Trays", img: "IMG-20260331-WA0032.jpg" },
+        { id: 5, name: "Sunburst Wall Mirror", img: "IMG-20260331-WA0033.jpg" },
+        { id: 6, name: "Raised Serving Platter Set", img: "IMG-20260331-WA0034.jpg" },
+        { id: 7, name: "High-Capacity Laundry Baskets", img: "IMG-20260331-WA0035.jpg" },
+        { id: 8, name: "Patterned Flat Bowls", img: "IMG-20260331-WA0036.jpg" },
+        { id: 9, name: "Tiered Pendant Lampshades", img: "IMG-20260331-WA0037.jpg" },
+        { id: 10, name: "Spiral Woven Rug", img: "IMG-20260331-WA0038.jpg" }
+    ];
+
+    let isAdmin = false;
+
+    function renderProducts() {
+        const grid = document.getElementById('productGrid');
+        grid.innerHTML = '';
+
+        products.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <div class="img-container">
+                    <img src="${p.img}" alt="${p.name}">
+                </div>
+                <div class="product-info">
+                    <h3>${p.name}</h3>
+                    <a href="https://wa.me/${WHATSAPP_NUM}?text=I%20am%20interested%20in%20the%20${encodeURIComponent(p.name)}" class="whatsapp-link">Inquire via WhatsApp</a>
+                    <div class="admin-controls" style="display: ${isAdmin ? 'block' : 'none'}">
+                        <button class="delete-btn" onclick="removeProduct(${p.id})">Remove Product</button>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // Login Logic
+    function openLogin() {
+        document.getElementById('loginModal').style.display = 'flex';
+    }
+
+    function closeLogin() {
+        document.getElementById('loginModal').style.display = 'none';
+    }
+
+    function checkLogin() {
+        const val = document.getElementById('phoneInput').value.trim();
+        if(AUTH_NUMBERS.includes(val)) {
+            isAdmin = true;
+            alert("Welcome back! You can now manage products.");
+            closeLogin();
+            renderProducts();
+        } else {
+            alert("Access Denied. Number not recognized.");
+        }
+    }
+
+    function removeProduct(id) {
+        if(confirm("Are you sure you want to hide this product from the public?")) {
+            products = products.filter(p => p.id !== id);
+            renderProducts();
+        }
+    }
+
+    // Initialize
+    renderProducts();
+</script>
+
+</body>
+</html>
